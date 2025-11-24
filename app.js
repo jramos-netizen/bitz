@@ -38,6 +38,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     const rankingCell = row.querySelector('.ranking');
                     if (rankingCell) {
                         rankingCell.textContent = data.ranking;
+                        location.reload();
                     }
                 }
             } catch (error) {
