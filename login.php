@@ -12,15 +12,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $errors[] = 'Cal indicar usuari i contrasenya.';
     } else {
         // Consulta parametritzada
-        $stmt = $pdo->prepare('SELECT id, password_hash FROM users WHERE username = ?');
+        $stmt = $pdo->prepare('SELECT id, password_hash, className, emailValid FROM users WHERE username = ?');
         $stmt->execute([$username]);
         $user = $stmt->fetch();
 
         if ($user && password_verify($password, $user['password_hash'])) {
             // Login correcte
             $_SESSION['user_id'] = $user['id'];
+            $_SESSION['className'] = $user['className'];
             $_SESSION['username'] = $username;
-            redirect('bitz.php');
+            if (empty($user['emailValid']) || (int)$user['emailValid'] !== 1) {
+                redirect('bitz.php');                
+            } else {
+                redirect('validateEmail.php');
+            }
         } else {
             $errors[] = 'Usuari o contrasenya incorrectes.';
         }

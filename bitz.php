@@ -11,9 +11,11 @@ if (!is_logged_in()) {
 $sql = "
     SELECT c.id,
            c.text,
+           c.emailValid,
            COALESCE(SUM(v.value), 0) AS ranking
       FROM bitz c
       LEFT JOIN votes v ON c.id = v.bitz_id
+     WHERE className = '" . $_SESSION['className'] . "'
      GROUP BY c.id, c.text
      ORDER BY ranking DESC, c.created_at ASC
 ";
@@ -34,7 +36,7 @@ $bitz = $stmt->fetchAll();
         <header>
             <img src="bitz_banner.png" alt="BitZ - Aprendre a Bocinets">
             <h1>BitZ per aprendre</h1>
-            <p>Usuari: <?php echo e($_SESSION['username']); ?> | <a href="logout.php">Tancar sessió</a></p>
+            <p>Usuari: <?php echo e($_SESSION['username']); ?> | <?php echo e($_SESSION['className']); ?>   | <a href="logout.php">Tancar sessió</a></p>
         </header>
 
         <main>

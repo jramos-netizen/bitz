@@ -12,9 +12,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     if ($text !== '') {
         $stmt = $pdo->prepare(
-                'INSERT INTO bitz (text, created_by) VALUES (?, ?)'
+                'INSERT INTO bitz (text, created_by, className) VALUES (?, ?, ?)'
         );
-        $stmt->execute([$text, $_SESSION['user_id']]);
+        $stmt->execute([$text, $_SESSION['user_id'], $_SESSION['className']]);
     }
 }
 
