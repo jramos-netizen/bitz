@@ -33,9 +33,9 @@ function e(string $str): string {
     return htmlspecialchars($str, ENT_QUOTES, 'UTF-8');
 }
 
-require_once '/var/www/includes/phpmailer/src/PHPMailer.php';
-require_once '/var/www/includes/phpmailer/src/SMTP.php';
-require_once '/var/www/includes/phpmailer/src/Exception.php';
+require_once '/var/www/includes/PHPMailer/src/PHPMailer.php';
+require_once '/var/www/includes/PHPMailer/src/SMTP.php';
+require_once '/var/www/includes/PHPMailer/src/Exception.php';
 
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;

@@ -131,3 +131,27 @@ select {
     display: inline-block;
     margin: 0;
 }
+
+p.error,
+p.success {
+    padding: 10px 14px;
+    margin: 15px 0;
+    border-radius: 6px;
+    font-size: 0.95rem;
+    line-height: 1.4;
+    display: block;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+p.error {
+    background-color: #fdecea;      /* vermell suau de fons */
+    border: 1px solid #f5c2c7;      /* vora vermell clar */
+    color: #842029;                 /* text vermell fosc */
+}
+
+p.success {
+    background-color: #e9f7ef;      /* verd suau de fons */
+    border: 1px solid #badbcc;      /* vora verd clar */
+    color: #0f5132;                 /* text verd fosc */
+}

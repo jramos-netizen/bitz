@@ -22,9 +22,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $_SESSION['className'] = $user['className'];
             $_SESSION['username'] = $username;
             if (empty($user['emailValid']) || (int)$user['emailValid'] !== 1) {
-                redirect('bitz.php');                
-            } else {
                 redirect('validateEmail.php');
+            } else {
+                redirect('bitz.php');                
             }
         } else {
             $errors[] = 'Usuari o contrasenya incorrectes.';

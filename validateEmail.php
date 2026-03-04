@@ -3,17 +3,17 @@ require_once __DIR__ . '/db.php';
 require_once __DIR__ . '/functions.php';
 
 $missatge = '';
-$esError  = false;
+$esError = false;
 
 if (isset($_GET['token'])) {
     $token = neteja_input($_GET['token'] ?? '');
 
     if ($token === '') {
         $missatge = 'Token de validació no especificat.';
-        $esError  = true;
+        $esError = true;
     } else {
         $stmt = $pdo->prepare(
-            'SELECT id, username, email, emailValid, verification_expires 
+                'SELECT id, username, email, emailValid, verification_expires 
              FROM users 
              WHERE verification_token = ?'
         );
@@ -22,22 +22,22 @@ if (isset($_GET['token'])) {
 
         if (!$user) {
             $missatge = 'Token de validació no vàlid.';
-            $esError  = true;
+            $esError = true;
         } else {
-            if ((int)$user['emailValid'] === 1) {
+            if ((int) $user['emailValid'] === 1) {
                 $missatge = 'Aquest correu electrònic ja estava validat prèviament.';
-                $esError  = false;
+                $esError = false;
             } else {
-                $ara    = time();
+                $ara = time();
                 $expira = $user['verification_expires'] ? strtotime($user['verification_expires']) : null;
 
                 if ($expira !== null && $expira < $ara) {
                     // ❗ Token caducat → generar-ne un de nou i reenviar a l’email actual de la BD
-                    $nouToken   = bin2hex(random_bytes(32));
+                    $nouToken = bin2hex(random_bytes(32));
                     $nouExpires = (new DateTime('+1 day'))->format('Y-m-d H:i:s');
 
                     $upd = $pdo->prepare(
-                        'UPDATE users 
+                            'UPDATE users 
                          SET verification_token = ?, verification_expires = ? 
                          WHERE id = ?'
                     );
@@ -45,17 +45,16 @@ if (isset($_GET['token'])) {
 
                     if (enviaCorreuValidacio($user['email'], $user['username'], $nouToken)) {
                         $missatge = 'El token de validació havia caducat. T\'hem enviat un nou correu de validació a ' .
-                                    htmlspecialchars($user['email'], ENT_QUOTES, 'UTF-8') . '.';
-                        $esError  = true; // Encara no està validat fins que cliqui el nou enllaç
+                                htmlspecialchars($user['email'], ENT_QUOTES, 'UTF-8') . '.';
+                        $esError = true; // Encara no està validat fins que cliqui el nou enllaç
                     } else {
                         $missatge = 'El token ha caducat i hi ha hagut un error enviant un nou correu. Contacta amb el professor.';
-                        $esError  = true;
+                        $esError = true;
                     }
-
                 } else {
                     // ✅ Token vàlid → marquem emailValid i netegem token
                     $upd = $pdo->prepare(
-                        'UPDATE users
+                            'UPDATE users
                          SET emailValid = 1,
                              verification_token = NULL,
                              verification_expires = NULL
@@ -64,25 +63,24 @@ if (isset($_GET['token'])) {
                     $upd->execute([$user['id']]);
 
                     $missatge = 'Correu electrònic validat correctament. Ja pots iniciar sessió amb el teu usuari.';
-                    $esError  = false;
+                    $esError = false;
                 }
             }
         }
     }
-}
-elseif ($_SERVER['REQUEST_METHOD'] === 'POST') {
+} elseif ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $username = neteja_input($_POST['username'] ?? '');
-    $email    = neteja_input($_POST['email'] ?? '');
+    $email = neteja_input($_POST['email'] ?? '');
 
     if ($username === '') {
         $missatge = 'Cal indicar el nom d\'usuari.';
-        $esError  = true;
+        $esError = true;
     } elseif ($email === '' || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
         $missatge = 'Cal indicar un correu electrònic vàlid.';
-        $esError  = true;
+        $esError = true;
     } else {
         $stmt = $pdo->prepare(
-            'SELECT id, username, email, emailValid 
+                'SELECT id, username, email, emailValid 
              FROM users 
              WHERE username = ?'
         );
@@ -91,30 +89,30 @@ elseif ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         if (!$user) {
             $missatge = 'No s\'ha trobat cap usuari amb aquest nom.';
-            $esError  = true;
-        } elseif ((int)$user['emailValid'] === 1) {
+            $esError = true;
+        } elseif ((int) $user['emailValid'] === 1) {
             $missatge = 'Aquest usuari ja té el correu validat. Pots iniciar sessió.';
-            $esError  = false;
-        } else {            
+            $esError = false;
+        } else {
             // Generem nou token i caducitat, actualitzant possible canvi email
-            $nouToken   = bin2hex(random_bytes(32));
+            $nouToken = bin2hex(random_bytes(32));
             $nouExpires = (new DateTime('+1 day'))->format('Y-m-d H:i:s');
 
             $upd = $pdo->prepare(
-                'UPDATE users
+                    'UPDATE users
                  SET verification_token = ?, verification_expires = ?, email = ?
                  WHERE id = ?'
             );
-            $upd->execute([$nouToken, $nouExpires, $email,  $user['id']]);
+            $upd->execute([$nouToken, $nouExpires, $email, $user['id']]);
 
             // Enviem correu al email proporcinat
             if (enviaCorreuValidacio($email, $user['username'], $nouToken)) {
                 $missatge = 'T\'hem enviat un nou correu de validació a ' .
-                            htmlspecialchars($email, ENT_QUOTES, 'UTF-8') . '.';
-                $esError  = false;
+                        htmlspecialchars($email, ENT_QUOTES, 'UTF-8') . '.';
+                $esError = false;
             } else {
                 $missatge = 'Hi ha hagut un error enviant el correu.';
-                $esError  = true;
+                $esError = true;
             }
         }
     }
@@ -122,42 +120,42 @@ elseif ($_SERVER['REQUEST_METHOD'] === 'POST') {
 ?>
 <!DOCTYPE html>
 <html lang="ca">
-<head>
-    <meta charset="UTF-8">
-    <title>Validació de correu</title>
-    <link rel="stylesheet" href="style.css">
-</head>
-<body>
-    <main class="container">
-        <h1>Validació de correu electrònic</h1>
+    <head>
+        <meta charset="UTF-8">
+        <title>Validació de correu</title>
+        <link rel="stylesheet" href="style.css">
+    </head>
+    <body>
+        <main class="container">
+            <h1>Validació de correu electrònic</h1>
 
-        <?php if ($missatge): ?>
-            <p class="<?php echo $esError ? 'error' : 'success'; ?>">
-                <?php echo htmlspecialchars($missatge, ENT_QUOTES, 'UTF-8'); ?>
-            </p>
-        <?php endif; ?>
+            <?php if ($missatge): ?>
+                <p class="<?php echo $esError ? 'error' : 'success'; ?>">
+                    <?php echo htmlspecialchars($missatge, ENT_QUOTES, 'UTF-8'); ?>
+                </p>
+            <?php endif; ?>
 
-        <p><a href="login.php">Anar a la pàgina d'inici de sessió</a></p>
-        <p><a href="index.php">Tornar a l'inici</a></p>
+            <p><a href="login.php">Anar a la pàgina d'inici de sessió</a></p>
+            <p><a href="index.php">Tornar a l'inici</a></p>
 
-        <hr>
+            <hr>
 
-        <h2>No has rebut el correu o vols canviar l'email?</h2>
-        <p>Introdueix el teu <b>nom d'usuari</b> i el <b>nou correu electrònic</b>. T'enviarem un nou enllaç de validació.</p>
+            <?php if (!$missatge): ?>
+                <h2>No has rebut el correu o vols canviar l'email?</h2>
+                <p>Introdueix el <b>correu electrònic</b>. T'enviarem un nou enllaç de validació.</p>
 
-        <form method="post" action="validateEmail.php">
-            <label>
-                Usuari:
-                <input type="text" name="username" required>
-            </label>
+                <form method="post" action="validateEmail.php">
+                    
+                    <input type="hidden" name="username" value="<?php echo $_SESSION['username']; ?>">
 
-            <label>
-                Correu electrònic:
-                <input type="email" name="email" required>
-            </label>
+                    <label>
+                        Correu electrònic:
+                        <input type="email" name="email" required>
+                    </label>
 
-            <button type="submit" class="btn">Reenviar correu de validació</button>
-        </form>
-    </main>
-</body>
+                    <button type="submit" class="btn">Reenviar correu de validació</button>
+                </form>
+            <?php endif; ?>
+        </main>
+    </body>
 </html>

@@ -11,7 +11,6 @@ if (!is_logged_in()) {
 $sql = "
     SELECT c.id,
            c.text,
-           c.emailValid,
            COALESCE(SUM(v.value), 0) AS ranking
       FROM bitz c
       LEFT JOIN votes v ON c.id = v.bitz_id
